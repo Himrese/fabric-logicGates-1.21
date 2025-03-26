@@ -1,0 +1,6 @@
+{
+    "parent": "minecraft:block/repeater",
+    "textures": {
+      "all": "minecraft:block/repeater"
+    }
+  }
