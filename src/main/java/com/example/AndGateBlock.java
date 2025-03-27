@@ -21,7 +21,6 @@ import net.minecraft.util.Identifier;
 
 
 
-
 public class AndGateBlock extends AbstractRedstoneGateBlock {
     public static final MapCodec<AndGateBlock> CODEC = createCodec(AndGateBlock::new);
 
