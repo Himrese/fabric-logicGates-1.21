@@ -523,7 +523,7 @@ public class CustomRedstoneWireBlock extends Block {
 		builder.add(WIRE_CONNECTION_NORTH, WIRE_CONNECTION_EAST, WIRE_CONNECTION_SOUTH, WIRE_CONNECTION_WEST, POWER);
 	}
 
-	@Override
+	@Override 
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		if (!player.getAbilities().allowModifyWorld) {
 			return ActionResult.PASS;

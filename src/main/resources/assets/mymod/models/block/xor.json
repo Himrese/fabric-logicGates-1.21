@@ -2,7 +2,7 @@
   "ambientocclusion": false,
   "textures": {
       "slab": ":block/smooth_stone",
-      "top": "mymod:block/andgate_on"
+      "top": "mymod:block/xorgate_on"
   },
   "elements": [
       {   "from": [ 0, 0, 0 ],
