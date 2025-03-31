@@ -16,7 +16,9 @@ public class ExampleMod implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 
-	public static final Block RBLOCK = new CustomRedstoneWireBlock(Block.Settings.create().strength(4.0f));
+	public static final Block RBLOCK = new WireBlock(Block.Settings.create().strength(4.0f));
+
+
 	@Override
 	public void onInitialize() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.

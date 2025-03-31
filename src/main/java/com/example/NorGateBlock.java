@@ -102,7 +102,7 @@ public class NorGateBlock extends AbstractRedstoneGateBlock {
     
         // 如果方块正在激活，并且信号输出方向是方块朝向的正前方
         if (state.get(POWERED) && direction == facing) {
-            return 15;  // 发出最大红石信号
+            return 1;  // 发出最大红石信号
         }
         return 0; // 否则没有红石输出
     }
