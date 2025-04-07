@@ -1,39 +1,24 @@
 package com.example;
-
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.block.BlockState;
 
 
 
+public class OrGateBlock extends MyGateBlock {
 
-
-
-public class OrGateBlock extends AndGateBlock {
-    
     public OrGateBlock(Settings settings) {
         super(settings);
-        //TODO Auto-generated constructor stub
     }
 
-    // 检查左边和右边的输入信号强度
-    // @Override
-    // public boolean hasPower(World world, BlockPos pos, BlockState state) {
-    //     boolean leftInput = getLeftSignal(world, pos, state); // 获取左侧输入信号
-    //     boolean rightInput = getRightSignal(world, pos, state); // 获取右侧输入信号
-    //     boolean bottomInput = getBottomSignal(world, pos, state); // 获取底部输入信号
 
-    //     return leftInput || rightInput || bottomInput;
-    // }
+    protected int getGateResult(World world, BlockPos pos, BlockState state) {
 
-    // @Override
-    // protected int getReceivedRedstoneSignal(World world, BlockPos pos) {
+        boolean leftSignal = getLeftSignal(world, pos, state);
+        boolean rightSignal = getRightSignal(world, pos, state);
+        boolean bottomSignal = getBottomSignal(world, pos, state);
 
-	// 	// 只检查直接方向
-    //     boolean leftInput = getLeftSignal(world, pos, world.getBlockState(pos)); // 获取左侧输入信号
-    //     boolean rightInput = getRightSignal(world, pos, world.getBlockState(pos)); // 获取右侧输入信号
-    //     boolean bottomInput = getBottomSignal(world, pos, world.getBlockState(pos)); // 获取底部输入信号
-
-	// 	return (leftInput || rightInput || bottomInput)?1:0;
-	// }
-
+        return (leftSignal || rightSignal || bottomSignal)?1:0;
+    }
+    
 }

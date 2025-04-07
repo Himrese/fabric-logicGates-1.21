@@ -51,7 +51,7 @@ public class WireBlock extends BlockWithEntity  {
 					WireBlockEntity wireEntity = ((WireBlockEntity)blockEntity); // 当前 WireBlockEntity
 
 					if(neighborWireEntity.TYPE == WireBlockEntity.ModTypes.GATE) {
-						if(world.getBlockState(neighborPos).get(AndGateBlock.FACING) == direction) { // 确保是朝向当前 WireBlock 的
+						if(world.getBlockState(neighborPos).get(MyGateBlock.FACING) == direction) { // 确保是朝向当前 WireBlock 的
 							wireEntity.SIGNAL = neighborWireEntity.SIGNAL;
 							wireEntity.markDirty();
 						}

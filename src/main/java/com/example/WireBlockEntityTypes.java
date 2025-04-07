@@ -19,8 +19,14 @@ public class WireBlockEntityTypes {
         BlockEntityType.Builder.create(
             WireBlockEntity::new,
             ExampleMod.RBLOCK,
-            ExampleMod.AND_BLOCK,
             ExampleMod.NAND_BLOCK,
+            ExampleMod.AND_BLOCK,
+            ExampleMod.XOR_BLOCK,
+            ExampleMod.OR_BLOCK,
+            ExampleMod.NOT_BLOCK,
+            ExampleMod.BUFFER_BLOCK,
+            ExampleMod.XNOR_BLOCK,
+            ExampleMod.NOR_BLOCK,
             ExampleMod.ONSIGNALBLOCK,
             ExampleMod.OFFSIGNALBLOCK
         ).build() // 使用 WireBlockEntity 的构造函数和对应的注册方块们

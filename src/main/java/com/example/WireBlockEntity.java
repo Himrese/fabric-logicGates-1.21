@@ -69,15 +69,15 @@ public class WireBlockEntity extends BlockEntity implements BlockEntityTicker<Wi
                 BlockPos neighborPos = this.getPos().offset(dir); // 获取相邻方块位置
                 BlockEntity blockEntity = this.world.getBlockEntity(neighborPos);
                 if(blockEntity instanceof WireBlockEntity){
-                    if(((WireBlockEntity) blockEntity).SIGNAL == this.SIGNAL)//如果数值相同，则不更新，避免循环调用
+                    if((((WireBlockEntity) blockEntity).SIGNAL == this.SIGNAL) && ((WireBlockEntity) blockEntity).TYPE==ModTypes.WIRE)//如果数值相同，则不更新，避免循环调用
                         continue; 
                     ((WireBlockEntity) blockEntity).update(this.SIGNAL,dir,this.TYPE); // 通知相邻方块更新
                 }
             }
         }
         else if(this.TYPE == ModTypes.GATE){
-            //调用andgate的更新信号
-            MyGateBlock gb = (MyGateBlock)(world.getBlockState(pos).getBlock());
+            //调用gate的更新信号
+            MyGateBlock gb = (MyGateBlock)(world.getBlockState(this.getPos()).getBlock());
             gb.updateGateSignal(world, this.getPos(), world.getBlockState(this.getPos())); // 更新逻辑门的输出信号
         }
         else if(this.TYPE == ModTypes.SIGNAL_SOURCE){
