@@ -1,0 +1,299 @@
+package com.example;
+
+import com.google.common.collect.Sets;
+import com.mojang.serialization.MapCodec;
+import java.util.Set;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.state.StateManager;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+
+public class WireBlock extends BlockWithEntity  {
+	public static final MapCodec<WireBlock> CODEC = createCodec(WireBlock::new);
+
+
+
+
+	@Override
+	public MapCodec<WireBlock> getCodec() {
+		return CODEC;
+	}
+
+	@Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new WireBlockEntity(pos, state);
+    }
+ 
+    @Override 
+    protected BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
+
+	public WireBlock(AbstractBlock.Settings settings) {
+		super(settings);
+		this.setDefaultState(
+			this.stateManager
+				.getDefaultState()
+		);
+	}
+
+
+
+
+	protected void update(World world, BlockPos pos, BlockState state) {
+		WireBlockEntity blockEntity = (WireBlockEntity) world.getBlockEntity(pos);
+		int i = this.getReceivedRedstonePower(world, pos);
+		// 计算当前方块的信号值
+		int j = this.getReceivedRedstoneSignal(world, pos);
+		if(blockEntity.SIGNAL != j){
+			blockEntity.SIGNAL = j;
+			blockEntity.markDirty();
+		}
+
+
+
+
+		// if ((Integer)state.get(POWER) != i) {
+		if (blockEntity.POWER != i) {	
+			if(i == 2048){
+				//break
+				world.removeBlock(pos, collidable);
+			}
+			// if (world.getBlockState(pos) == state) {
+			// 	world.setBlockState(pos, state.with(POWER, i), Block.NOTIFY_LISTENERS);
+			// }
+			
+			
+
+			Set<BlockPos> set = Sets.<BlockPos>newHashSet();
+			set.add(pos);
+
+			for (Direction direction : Direction.values()) {
+				set.add(pos.offset(direction));
+			}
+
+			for (BlockPos blockPos : set) {
+				world.updateNeighborsAlways(blockPos, this);
+			}
+		}
+	}
+
+	/**
+ * 从周围直接相邻的方块获取信号值，不增加也不衰减
+ * 信号值保持原样传递，但只能通过直接相邻的方块传输
+ * 留意方向，只获取比自己的power小的信号值
+ * 
+ * @param world 方块所在的世界
+ * @param pos 当前方块的位置
+ * @return 连接方块的信号值
+ */
+	protected int getReceivedRedstoneSignal(World world, BlockPos pos) {
+		// 初始化信号值为0，我们将寻找最大值
+		int receivedSignal = 0;
+		// 获取当前方块的状态
+
+		// 只检查直接相邻的六个方向
+		for (Direction direction : DIRECTIONS) {
+			
+			// 获取相邻方块位置（只检查直接相邻的方块）
+			BlockPos adjacentPos = pos.offset(direction);
+			BlockState adjacentState = world.getBlockState(adjacentPos);
+		
+			Block adjacentBlock = adjacentState.getBlock();
+			
+			// 检查相邻方块类型并获取信号
+			if (adjacentBlock instanceof WireBlock) {
+				WireBlockEntity blockEntity = (WireBlockEntity) world.getBlockEntity(adjacentPos);
+				int adjacentSignal = blockEntity.SIGNAL;
+				receivedSignal = Math.max(receivedSignal, adjacentSignal);
+			} 
+			else if (adjacentBlock instanceof OnSignal) {
+				int adjacentSignal = ((OnSignal)adjacentBlock).SIGNAL;
+				receivedSignal = Math.max(receivedSignal, adjacentSignal);
+			} 
+			else if (adjacentBlock instanceof AndGateBlock) {
+				// 方向正确
+				if (adjacentState.get(AndGateBlock.FACING) == direction) {
+					// 获取信号值
+					WireBlockEntity blockEntity = (WireBlockEntity) world.getBlockEntity(adjacentPos);
+					//GateBlockEntity blockEntity = (GateBlockEntity) world.getBlockEntity(adjacentPos);
+					int adjacentSignal = blockEntity.SIGNAL;
+					receivedSignal = Math.max(receivedSignal, adjacentSignal);
+				}
+	
+				
+			}else{
+				ExampleMod.LOGGER.debug("Found unsupported block type at {}: {}", adjacentPos, adjacentBlock.getClass().getName());
+				continue;//跳过其他类型的方块
+			}
+		}
+		
+
+		return receivedSignal;
+	}
+
+
+
+	protected int getReceivedRedstonePower(World world, BlockPos pos) {
+		// 先临时关闭红石线直接供电
+		this.wiresGivePower = false;
+		int i = Integer.MAX_VALUE;
+
+		for (Direction direction : DIRECTIONS) {
+			BlockPos blockPos = pos.offset(direction);
+			BlockState blockState = world.getBlockState(blockPos);
+			int j = blockState.getWeakRedstonePower(world, blockPos, direction);
+			if(j == 0) {
+				continue;
+			}
+			// 只获取比自己的power小的信号值
+			if (j < i) {
+				i = j;
+			}
+		}
+		if(i == Integer.MAX_VALUE){
+			i = 0;
+		}
+
+
+
+		this.wiresGivePower = true;
+
+		if(i == 0){
+			//get the same power from the block itself
+			int j = Integer.MAX_VALUE;
+			for (Direction direction : DIRECTIONS) {
+				BlockPos blockPos = pos.offset(direction);
+				BlockState blockState = world.getBlockState(blockPos);
+				int k = 0;
+				if(blockState.isOf(this)){
+					k = world.getBlockEntity(blockPos) instanceof WireBlockEntity ? 
+						((WireBlockEntity)world.getBlockEntity(blockPos)).SIGNAL : 0; // 获取信号值
+				}else{
+					k = 0;
+				}
+
+				if(k == 0) {
+					continue;
+				}
+				if (k < j) {
+					j = k;
+				}
+			}
+			if(j == Integer.MAX_VALUE){
+				j = -1;
+			}
+			return Math.min(2048, j + 1);
+		}
+		
+
+
+		//ExampleMod.LOGGER.info("Power: " + i);
+		return Math.min(2048, i + 1);
+	}
+	
+
+
+
+	private void updateNeighbors(World world, BlockPos pos) {
+		if (world.getBlockState(pos).isOf(this)) {
+			world.updateNeighborsAlways(pos, this);
+
+			for (Direction direction : Direction.values()) {
+				world.updateNeighborsAlways(pos.offset(direction), this);
+			}
+		}
+	}
+
+	@Override
+	protected void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
+		if (!oldState.isOf(state.getBlock()) && !world.isClient) {
+			this.update(world, pos, state);
+
+			for (Direction direction : Direction.Type.VERTICAL) {
+				world.updateNeighborsAlways(pos.offset(direction), this);
+			}
+
+			this.updateOffsetNeighbors(world, pos);
+		}
+	}
+
+
+	private void updateOffsetNeighbors(World world, BlockPos pos) {
+		for (Direction direction : Direction.Type.HORIZONTAL) {
+			this.updateNeighbors(world, pos.offset(direction));
+		}
+
+		for (Direction direction : Direction.Type.HORIZONTAL) {
+			BlockPos blockPos = pos.offset(direction);
+			if (world.getBlockState(blockPos).isSolidBlock(world, blockPos)) {
+				this.updateNeighbors(world, blockPos.up());
+			} else {
+				this.updateNeighbors(world, blockPos.down());
+			}
+		}
+	}
+
+	@Override
+	protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+		if (!world.isClient) {
+			if (state.canPlaceAt(world, pos)) {
+				this.update(world, pos, state);
+			} else {
+				dropStacks(state, world, pos);
+				world.removeBlock(pos, false);
+			}
+		}
+	}
+
+	@Override
+	protected int getStrongRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+		return state.getWeakRedstonePower(world, pos, direction);
+	}
+
+	@Override
+	protected int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+		if (this.wiresGivePower) {
+			int i = world.getBlockEntity(pos) instanceof WireBlockEntity ? 
+			((WireBlockEntity)world.getBlockEntity(pos)).SIGNAL : 0; // 获取信号值
+			return i;
+		} else {
+			return 0;
+		}
+	}
+
+
+	@Override
+	protected boolean emitsRedstonePower(BlockState state) {
+		return this.wiresGivePower;
+	}
+
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		super.appendProperties(builder);
+	}
+
+	@Override
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+		if (!world.isClient){
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof WireBlockEntity BlockEntity) {
+                player.sendMessage(Text.literal("signal: " + BlockEntity.SIGNAL));
+                BlockEntity.markDirty();
+            }
+        }
+		return ActionResult.PASS;
+		
+	}
+}

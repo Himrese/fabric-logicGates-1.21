@@ -1,32 +1,80 @@
 package com.example;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.mojang.serialization.MapCodec;
-import java.util.Map;
-import java.util.Set;
-
 import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.enums.WireConnection;
+import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-public class WireBlock extends Block {//这是我的程序，我想加入一个pathvalue，用来追踪红石的连接方向，可以更新value传输的方法，并且你需要完成这个功能，包括pathvalue的更新功能
-  
-    
+public class WireBlock extends BlockWithEntity  {
+	public static final MapCodec<WireBlock> CODEC = createCodec(WireBlock::new);
+
+	@Override
+	public MapCodec<WireBlock> getCodec() {
+		return CODEC;
+	}
+
+	@Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		WireBlockEntity blockEntity = new WireBlockEntity(pos, state); // 创建 WireBlockEntity 实例，类型为 WIRE
+		blockEntity.TYPE = WireBlockEntity.ModTypes.WIRE; // 设置类型为 WIRE
+        return blockEntity;
+    }
+ 
+    @Override 
+    protected BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
+
+	public WireBlock(AbstractBlock.Settings settings) {
+		super(settings);
+	}
+
+	@Override
+	protected void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
+		if (!oldState.isOf(state.getBlock()) && !world.isClient) {
+			//第一次放下方块，获取附近的方块实体并更新信号
+			for (Direction direction : DIRECTIONS) { // 6个方向
+				BlockPos neighborPos = pos.offset(direction);
+				BlockEntity blockEntity = world.getBlockEntity(pos);
+				BlockEntity neighborBlockEntity = world.getBlockEntity(neighborPos);
+				if(neighborBlockEntity instanceof WireBlockEntity) { // 确保邻居是 WireBlockEntity
+					WireBlockEntity neighborWireEntity = ((WireBlockEntity)neighborBlockEntity);// 当前邻居 WireBlockEntity
+					WireBlockEntity wireEntity = ((WireBlockEntity)blockEntity); // 当前 WireBlockEntity
+
+					if(neighborWireEntity.TYPE == WireBlockEntity.ModTypes.GATE) {
+						if(world.getBlockState(neighborPos).get(AndGateBlock.FACING) == direction) { // 确保是朝向当前 WireBlock 的
+							wireEntity.SIGNAL = neighborWireEntity.SIGNAL;
+							wireEntity.markDirty();
+						}
+					}else{
+						wireEntity.SIGNAL = neighborWireEntity.SIGNAL; // 直接使用信号源的值
+						wireEntity.markDirty();
+					}
+
+				}
+
+			}
+		}
+	}
+
+	@Override
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+		if (!world.isClient){
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof WireBlockEntity BlockEntity) {
+                player.sendMessage(Text.literal("signal: " + BlockEntity.SIGNAL + ", type: " + BlockEntity.TYPE.name()), true); // 发送当前信号值和类型给玩家
+            }
+        }
+		return ActionResult.PASS;
+		
+	}
 }
