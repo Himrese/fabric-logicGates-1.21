@@ -18,7 +18,7 @@ import net.minecraft.world.World;
 
 public abstract class MyGateBlock extends WireBlock {
 
- public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
 	@Override
 	protected BlockState rotate(BlockState state, BlockRotation rotation) {

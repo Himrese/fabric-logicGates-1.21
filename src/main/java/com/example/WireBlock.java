@@ -54,11 +54,15 @@ public class WireBlock extends BlockWithEntity  {
 						if(world.getBlockState(neighborPos).get(MyGateBlock.FACING) == direction) { // 确保是朝向当前 WireBlock 的
 							wireEntity.SIGNAL = neighborWireEntity.SIGNAL;
 							wireEntity.markDirty();
+							return;
 						}
 					}else{
 						wireEntity.SIGNAL = neighborWireEntity.SIGNAL; // 直接使用信号源的值
 						wireEntity.markDirty();
+						return;
 					}
+
+
 
 				}
 

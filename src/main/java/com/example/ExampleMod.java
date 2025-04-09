@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,9 @@ public class ExampleMod implements ModInitializer {
 	public static final Block XOR_BLOCK = new XorGateBlock(Block.Settings.create().strength(1.0f));
 	public static final Block NOR_BLOCK = new NorGateBlock(Block.Settings.create().strength(1.0f));
 	public static final Block XNOR_BLOCK = new XnorGateBlock(Block.Settings.create().strength(1.0f));
+	public static final Block SIGNAL_BLOCK = new SignalSource(Block.Settings.create().strength(1.0f));
+	public static final Block DECODER_INPUT_BLOCK = new DecoderInput(Block.Settings.create().strength(1.0f));
+	public static final Block DECODER_OUTPUT_BLOCK = new DecoderOutput(Block.Settings.create().strength(1.0f));
 
 
 
@@ -51,6 +55,9 @@ public class ExampleMod implements ModInitializer {
 		Registry.register(Registries.BLOCK, Identifier.of("mymod", "xor"), XOR_BLOCK);
 		Registry.register(Registries.BLOCK, Identifier.of("mymod", "nor"), NOR_BLOCK);
 		Registry.register(Registries.BLOCK, Identifier.of("mymod", "xnor"), XNOR_BLOCK);
+		Registry.register(Registries.BLOCK, Identifier.of("mymod", "signal"), SIGNAL_BLOCK);
+		Registry.register(Registries.BLOCK, Identifier.of("mymod", "decoder_input"),DECODER_INPUT_BLOCK);
+		Registry.register(Registries.BLOCK, Identifier.of("mymod", "decoder_output"),DECODER_OUTPUT_BLOCK);
 
 
 		Registry.register(Registries.ITEM, Identifier.of("mymod", "wire"), new BlockItem(RBLOCK, new Item.Settings()));
@@ -64,6 +71,9 @@ public class ExampleMod implements ModInitializer {
 		Registry.register(Registries.ITEM, Identifier.of("mymod", "xor"), new BlockItem(XOR_BLOCK, new Item.Settings()));
 		Registry.register(Registries.ITEM, Identifier.of("mymod", "nor"), new BlockItem(NOR_BLOCK, new Item.Settings()));
 		Registry.register(Registries.ITEM, Identifier.of("mymod", "xnor"), new BlockItem(XNOR_BLOCK, new Item.Settings()));
+		Registry.register(Registries.ITEM, Identifier.of("mymod", "signal"), new BlockItem(SIGNAL_BLOCK, new Item.Settings()));
+		Registry.register(Registries.ITEM, Identifier.of("mymod", "decoder_input"), new BlockItem(DECODER_INPUT_BLOCK, new Item.Settings()));
+		Registry.register(Registries.ITEM, Identifier.of("mymod", "decoder_output"), new BlockItem(DECODER_OUTPUT_BLOCK, new Item.Settings()));
 
 		WireBlockEntityTypes.initialize(); // 初始化 WireBlockEntityTypes，注册 BlockEntityType
 

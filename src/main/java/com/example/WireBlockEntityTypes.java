@@ -28,7 +28,10 @@ public class WireBlockEntityTypes {
             ExampleMod.XNOR_BLOCK,
             ExampleMod.NOR_BLOCK,
             ExampleMod.ONSIGNALBLOCK,
-            ExampleMod.OFFSIGNALBLOCK
+            ExampleMod.OFFSIGNALBLOCK,
+            ExampleMod.SIGNAL_BLOCK,
+            ExampleMod.DECODER_INPUT_BLOCK,
+            ExampleMod.DECODER_OUTPUT_BLOCK
         ).build() // 使用 WireBlockEntity 的构造函数和对应的注册方块们
     );
 

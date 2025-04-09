@@ -1,4 +1,7 @@
 package com.example;
+
+import java.util.ArrayList;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -15,10 +18,14 @@ public class WireBlockEntity extends BlockEntity implements BlockEntityTicker<Wi
         NONE, // 无类型
         WIRE,
         GATE,
-        SIGNAL_SOURCE // 信号源类型
-        
+        SIGNAL_SOURCE,
+        DECODER_INPUT,
+        DECODER_OUTPUT
     }
-    ModTypes TYPE = ModTypes.NONE; // 方块类型，默认为 NONE
+    
+    ArrayList<BlockPos> decoderOutputList = new ArrayList<>();
+
+    public ModTypes TYPE = ModTypes.NONE; // 方块类型，默认为 NONE
     public WireBlockEntity(BlockPos pos, BlockState state) {
         super(WireBlockEntityTypes.RBLOCK, pos, state);
     }
@@ -54,14 +61,12 @@ public class WireBlockEntity extends BlockEntity implements BlockEntityTicker<Wi
 
 
 
-
-
     protected void update(int signal,Direction direction, ModTypes type) {
 
         if(this.TYPE == ModTypes.NONE){
-            return; // 如果类型为 NONE，则不进行更新相邻方块
+            return;
         }
-        if(this.TYPE == ModTypes.WIRE){
+        if(this.TYPE == ModTypes.WIRE || this.TYPE == ModTypes.DECODER_OUTPUT){
             this.SIGNAL = signal; // 更新信号值
             this.markDirty(); // 标记为脏数据以便保存到NBT
             for(Direction dir : Direction.values()){
@@ -81,13 +86,8 @@ public class WireBlockEntity extends BlockEntity implements BlockEntityTicker<Wi
             gb.updateGateSignal(world, this.getPos(), world.getBlockState(this.getPos())); // 更新逻辑门的输出信号
         }
         else if(this.TYPE == ModTypes.SIGNAL_SOURCE){
-            // 信号源类型不需要更新相邻方块，只需保持当前信号即可
-            if(this.SIGNAL != 1){
-                this.SIGNAL = 1;
-                this.markDirty(); // 确保信号源类型的 WireBlockEntity 更新到 NBT
-            }
             for(Direction dir : Direction.values()){
-                if(dir == direction.getOpposite()) continue; // 跳过当前方向，避免循环调用来源方向
+                if((direction != null) && (dir == direction.getOpposite())) continue; // 跳过当前方向，避免循环调用来源方向
                 BlockPos neighborPos = this.getPos().offset(dir); // 获取相邻方块位置
                 BlockEntity blockEntity = this.world.getBlockEntity(neighborPos);
                 if(blockEntity instanceof WireBlockEntity){
@@ -96,6 +96,27 @@ public class WireBlockEntity extends BlockEntity implements BlockEntityTicker<Wi
                     ((WireBlockEntity) blockEntity).update(this.SIGNAL,dir,this.TYPE); // 通知相邻方块更新
                 }
             }
+        }else if(this.TYPE == ModTypes.DECODER_INPUT){
+            DecoderInput db = (DecoderInput)(world.getBlockState(this.getPos()).getBlock());
+            this.decoderOutputList = db.checkOutputState(world, pos, world.getBlockState(this.getPos()).get(DecoderInput.FACING));
+
+            this.SIGNAL = signal;
+            this.markDirty();
+            
+            if(this.decoderOutputList!=null && this.decoderOutputList.size() == 8){
+                for(BlockPos blockPos : this.decoderOutputList){
+                    if(world.getBlockEntity(blockPos) instanceof WireBlockEntity blockEntity){
+                        //signal to binary
+                        int binaryValue = this.SIGNAL & 0xFF; // 取低8位作为二进制值
+                        int outputSignal = (binaryValue >> (7 - (this.decoderOutputList.indexOf(blockPos)))) & 1; // 获取对应的信号值
+                        Direction facing = world.getBlockState(this.getPos()).get(DecoderInput.FACING);
+                        blockEntity.update(outputSignal,facing.getOpposite(),ModTypes.DECODER_INPUT);
+                    }
+
+                }
+            }
         }
+
+
     }
 }
