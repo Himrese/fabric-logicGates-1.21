@@ -9,7 +9,7 @@ public class DecoderOutput extends WireBlock{
     public DecoderOutput(Settings settings) {
         super(settings);
     }
-
+    
 	@Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		WireBlockEntity blockEntity = new WireBlockEntity(pos, state);

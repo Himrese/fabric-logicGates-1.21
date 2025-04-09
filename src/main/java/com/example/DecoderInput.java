@@ -23,33 +23,40 @@ public class DecoderInput extends WireBlock{
 
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
+    //旋转为facing
     @Override
 	protected BlockState rotate(BlockState state, BlockRotation rotation) {
 		return state.with(FACING, rotation.rotate(state.get(FACING)));
 	}
 
+    //镜像为facing
 	@Override
 	protected BlockState mirror(BlockState state, BlockMirror mirror) {
 		return state.rotate(mirror.getRotation(state.get(FACING)));
 	}
 
+    
+    // 方块的状态管理
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
         builder.add(FACING);
     }
 
+    // 设置方块的朝向
     @Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		return super.getPlacementState(ctx).with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
 	}
 
 
+    // 构造函数,添加FACING到状态
     public DecoderInput(Settings settings) {
         super(settings);
         this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH));
     }
 
+    //创建并设置BlockEntity类型为 DECODER_INPUT
 	@Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		WireBlockEntity blockEntity = new WireBlockEntity(pos, state);
@@ -58,6 +65,7 @@ public class DecoderInput extends WireBlock{
     }
 
 
+    //检查输出方块的状态，是否为正确的位置并记录其位置
     public ArrayList<BlockPos> checkOutputState(World world, BlockPos pos, Direction facing){
         ArrayList<BlockPos> outputs = new ArrayList<>();
         for(int i = 0;i<8;i++){
@@ -80,6 +88,7 @@ public class DecoderInput extends WireBlock{
     }
 
 
+    //方块添加时检查输出方块的状态
     @Override
 	protected void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
         WireBlockEntity blockEntity = (WireBlockEntity) world.getBlockEntity(pos);
@@ -88,6 +97,7 @@ public class DecoderInput extends WireBlock{
 	}
 
 
+    //右键点击方块时发送当前信号值和类型给玩家用于调试
     @Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		if (!world.isClient){

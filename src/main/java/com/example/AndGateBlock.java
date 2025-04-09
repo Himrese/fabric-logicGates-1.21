@@ -11,7 +11,7 @@ public class AndGateBlock extends MyGateBlock {
         super(settings);
     }
 
-
+    //获取Gate的结果
     protected int getGateResult(World world, BlockPos pos, BlockState state) {
 
         boolean leftSignal = getLeftSignal(world, pos, state);

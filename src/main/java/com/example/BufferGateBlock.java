@@ -11,7 +11,7 @@ public class BufferGateBlock extends MyGateBlock {
         super(settings);
     }
 
-
+    
     protected int getGateResult(World world, BlockPos pos, BlockState state) {
         boolean bottomSignal = getBottomSignal(world, pos, state);
 
