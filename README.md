@@ -26,7 +26,7 @@ View > Terminal → Then run the command: ./gradlew vscode
 
 8. Go to Singleplayer:
 You can either create a new world (make sure "Allow Commands" is set to ON)
-Or load an existing world (e.g., "New World").
+Or load an existing world (e.g., "Example Space").
 
 9. In the game, use the following command to obtain different Logic Gate blocks:
     /give @a mymod:objectname
