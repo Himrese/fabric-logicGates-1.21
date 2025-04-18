@@ -24,7 +24,11 @@ public class SignalSource extends OnSignal {
             if (blockEntity instanceof WireBlockEntity BlockEntity) {
 				BlockEntity.SIGNAL++;
 				BlockEntity.markDirty();
-				BlockEntity.update(BlockEntity.SIGNAL,null,BlockEntity.TYPE);
+				try {
+					BlockEntity.update(BlockEntity.SIGNAL,null,BlockEntity.TYPE);
+				} catch (MyModException e) {
+					e.printStackTrace();
+				}
 				player.sendMessage(Text.literal("signal: " + BlockEntity.SIGNAL + ", type: " + BlockEntity.TYPE.name()), true); // 发送当前信号值和类型给玩家
 
             }

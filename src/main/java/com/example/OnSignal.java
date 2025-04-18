@@ -39,7 +39,11 @@ public class OnSignal extends WireBlock {
 				if (neighborBlockEntity instanceof WireBlockEntity) {
 					WireBlockEntity neighborWireEntity = (WireBlockEntity) neighborBlockEntity;
 					// 更新相邻方块的信号值为当前方块的信号值
-					neighborWireEntity.update(defaultSignal, direction, ModTypes.SIGNAL_SOURCE); // 通知更新
+					try {
+						neighborWireEntity.update(defaultSignal, direction, ModTypes.SIGNAL_SOURCE);
+					} catch (MyModException e) {
+						e.printStackTrace();
+					} // 通知更新
 				}
 			}
 		}

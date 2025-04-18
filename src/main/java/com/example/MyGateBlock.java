@@ -115,7 +115,11 @@ public abstract class MyGateBlock extends WireBlock {
         // 更新FACING方向
         WireBlockEntity updateBlockEntity = (WireBlockEntity) world.getBlockEntity(pos.offset(state.get(FACING).getOpposite()));
         if(updateBlockEntity instanceof WireBlockEntity){
-            updateBlockEntity.update(blockEntity.SIGNAL, state.get(FACING).getOpposite(),ModTypes.GATE); // 通知更新
+            try {
+                updateBlockEntity.update(blockEntity.SIGNAL, state.get(FACING).getOpposite(),ModTypes.GATE);
+            } catch (MyModException e) {
+                e.printStackTrace();
+            }
         }
     }
 

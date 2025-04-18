@@ -39,7 +39,7 @@ public class WireBlock extends BlockWithEntity  {
 	}
 
 	@Override
-	protected void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
+	protected void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify){
 		if (!oldState.isOf(state.getBlock()) && !world.isClient) {
 			//第一次放下方块，获取附近的方块实体并更新信号
 			for (Direction direction : DIRECTIONS) { // 6个方向
@@ -68,6 +68,7 @@ public class WireBlock extends BlockWithEntity  {
 
 			}
 		}
+
 	}
 
 	@Override

@@ -41,6 +41,7 @@ public class WireBlockEntity extends BlockEntity implements BlockEntityTicker<Wi
     @Override
     public void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
         // 将数字的当前值保存到 nbt
+
         nbt.putInt("signal", SIGNAL);
         nbt.putInt("type", TYPE.ordinal());
 
@@ -61,10 +62,10 @@ public class WireBlockEntity extends BlockEntity implements BlockEntityTicker<Wi
 
 
 
-    protected void update(int signal,Direction direction, ModTypes type) {
+    protected void update(int signal,Direction direction, ModTypes type) throws MyModException {
 
         if(this.TYPE == ModTypes.NONE){
-            return;
+            throw new MyModException("BLOCK TYPE NOT SET"); 
         }
         if(this.TYPE == ModTypes.WIRE || this.TYPE == ModTypes.DECODER_OUTPUT){
             this.SIGNAL = signal; // 更新信号值
