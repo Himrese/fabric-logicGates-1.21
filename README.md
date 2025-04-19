@@ -31,6 +31,10 @@ Or load an existing world (e.g., "Example Space").
 9. In the game, use the following command to obtain different Logic Gate blocks:
     /give @a mymod:objectname
 
+## P.S.
+If you want to see the source code for minecraft (our code has the extend source code in it)
+Run ./gradlew genSources on VScode Terminal.
+
 ## License
 
 This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
